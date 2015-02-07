@@ -1,0 +1,139 @@
+
+asssignment 1
+=====================
+
+Code for loading the data
+
+```{r, echo=TRUE}
+
+activity<-read.csv(file.choose(),header=TRUE)
+
+activity
+
+
+```
+
+To calculate the total number of steps taken each day,following code was used
+
+```{r,echo=TRUE}
+
+activity$steps
+
+```
+
+Histogram for the above steps taken each day is 
+
+```{r,echo=TRUE}
+
+sumEachDay <- aggregate(steps ~ date, activity, sum)
+hist(sumEachDay$steps, col = "grey", breaks = 20,
+    xlab = "Number of Steps", xlim = c(0, 25000), ylim = c(0, 20), 
+    main = "[Before] Histogram of Total Number of Steps for One Day")
+
+```
+
+Mean and median of toatal number of step taken are:
+
+```{r,echo=TRUE}
+
+mean(sumEachDay$steps, na.rm = TRUE)
+
+median(sumEachDay$steps, na.rm = TRUE)
+
+```
+
+Time plot, where x= 5min interval, y=average steps taken over all the days
+
+
+
+For counting NA in the data
+
+```{r,echo=TRUE}
+
+length(which(is.na(activity)==TRUE))
+
+```
+
+Plot
+
+```{r,echo=TRUE}
+
+meanEachInterval <- aggregate(steps ~ interval, activity, mean)
+plot(meanEachInterval$interval, meanEachInterval$steps, type = "l", xaxt = "n", 
+    xlab = "5-Minute Interval ID (e.g., 730 for interval [07:30, 07:35))", ylab = "Average Number of Steps", 
+    main = "Average Number of Steps for Each 5-Minute Interval")
+axis(1, c(seq(0, 2400, 200)))
+
+```
+
+The step 
+
+```{r,echo=TRUE}
+
+meanEachInterval[which.max(meanEachInterval$steps),]
+
+```
+
+For replacing NA in the data
+
+```{r,echo=TRUE}
+
+sum(is.na(activity$steps))
+
+newactivity <- activity
+for (int in seq(0, 2355, 5)) {
+    idx <- which(newactivity$interval == int & is.na(newactivity$steps))
+    newactivity[idx, "steps"] <- meanEachInterval[meanEachInterval$interval == int, "steps"]
+}
+
+```
+
+Histogram of new data formed
+
+```{r,echo=TRUE}
+newSumEachDay <- aggregate(steps ~ date, newactivity, sum)
+
+hist(newSumEachDay$steps, col = "grey", breaks = 20,xlab = "Number of Steps", xlim = c(0, 25000), ylim = c(0, 20),main = "[After] Histogram of Total Number of Steps for One Day")
+
+```
+
+
+
+
+NEW mean and median of the data are:
+
+```{r,echo=TRUE}
+
+mean(newSumEachDay$steps, na.rm = TRUE)
+
+median(newSumEachDay$steps, na.rm = TRUE)
+
+```
+
+As mentioned in the downside, ALL the 8 empty days are all filled in with the same estimates, so the total number of steps in these 8 days are all 10766.19, which equals the mean in sumEachDay. Therefore, the new histogram makes ONLY the mean-value bin higher.
+The new mean value is the same because adding the mean values to the original dataset does not change the mean.
+The new median value becomes the mean value because 8 mean values are added into the dataset. After sorting, these 8 values will likely dominate in the middle and be picked as the median.. 
+
+Creating new variables, weekdays and weekends in the new data
+
+```{r,echo=TRUE}
+
+newactivity$weekXXX <- format(newactivity$date, "%u")
+newactivity$weekXXX[newactivity$weekXXX %in% 1:5] <- "weekday"
+newactivity$weekXXX[newactivity$weekXXX %in% 6:7] <- "weekend"
+newactivity$weekXXX <- as.factor(newactivity$weekXXX)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
